@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ຂໍ້ມູນໃຫ້ບໍລິການລູກຄ້າ Call Center 123</title>
+    <!-- Google Fonts: Noto Sans Lao -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* กำหนดฟอนต์ Noto Sans Lao เป็นฟอนต์หลัก */
+        body {
+            font-family: 'Noto Sans Lao', sans-serif;
+        }
+        /* ปรับแต่ง scrollbar เพื่อความสวยงาม */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-700 to-blue-900 text-white p-6 shadow-xl rounded-b-lg">
+        <div class="container mx-auto">
+            <h1 class="text-4xl font-extrabold text-center tracking-tight leading-tight">
+                ຂໍ້ມູນໃຫ້ບໍລິການລູກຄ້າ Call Center 123
+            </h1>
+            <p class="text-center text-blue-200 mt-2 text-lg">
+                ສູນລວມຂໍ້ມູນທີ່ສໍາຄັນສໍາລັບການບໍລິການລູກຄ້າ
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto p-6 flex-grow py-10">
+        <div id="content-display" class="bg-white p-8 rounded-2xl shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-[1.005]">
+            <p class="text-center text-xl text-blue-600 font-semibold animate-pulse">
+                ກຳລັງໂຫຼດຂໍ້ມູນ... ກະລຸນາລໍຖ້າ
+            </p>
+            <div class="flex justify-center items-center mt-4">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 text-gray-300 p-4 text-center mt-auto shadow-inner rounded-t-lg">
+        <p class="text-sm">&copy; 2025 TPLUS Call Center 123 (By Latsamy)</p>
+    </footer>
+
+    <!-- Custom JavaScript (must be defined before api.js if handleClientLoad is called by api.js onload) -->
+    <script>
+        // Google Sheet Configuration
+        const SPREADSHEET_ID = '1Ue0YuPrDJs3swJMGpA_Ps4rfQjpyfJ9ufAFsAchDQ-g';
+        const SHEET_NAME = 'More Information';
+        
+        // IMPORTANT: Replace 'YOUR_GOOGLE_SHEETS_API_KEY' with your actual Google Sheets API Key.
+        // Get your API Key from Google Cloud Console: APIs & Services -> Credentials.
+        // Make sure Google Sheets API is enabled for your project.
+        const API_KEY = 'AIzaSyCoGtRFaFdDCwvw--BjfmzK2slzjsjWoAk'; 
+
+        // Define the sections and keywords for filtering data.
+        // The keywords are used to identify which rows belong to which section based on the 'Category' column in your Google Sheet.
+        const sections = [
+            { title: "ຂໍ້ມູນຕິດຕໍ່ພະນັກງານ", categoryMatch: ["ຂໍ້ມູນຕິດຕໍ່ພະນັກງານ", "ຕິດຕໍ່ພະນັກງານ"] },
+            { title: "ຄໍາຖາມ ແລະ ຄໍາຕອບ (Q & A)", categoryMatch: ["ຄຳຖາມ ແລະ ຄຳຕອບ", "Q & A", "QA"] },
+            { title: "ແພັກເກັດເນັດ ເບີເຕີມເງິນ (Prepaid)", categoryMatch: ["ແພັກເກັດເນັດ ເບີເຕີມເງິນ", "Prepaid", "ເຕີມເງິນ"] },
+            { title: "ແພັກເກັດເນັດ ເບີລາຍເດືອນ (Postpaid)", categoryMatch: ["ແພັກເກັດເນັດ ເບີລາຍເດືອນ", "Postpaid", "ລາຍເດືອນ"] },
+            { title: "ໂຣມມິງ (IR)", categoryMatch: ["ໂຣມມິງ", "IR"] },
+            { title: "ອັດຕາຄ່າໂທຕ່າງປະເທດ (IDD)", categoryMatch: ["ອັດຕາຄ່າໂທຕ່າງປະເທດ", "IDD"] },
+            { title: "ສະສົມ ແລະ ແລກຄະແນນ (Smart Reward)", categoryMatch: ["ສະສົມ ແລະ ແລກຄະແນນ", "Smart Reward"] },
+            { title: "ຢືມມູນຄ່າໂທ ແລະ ດາຕາເນັດ (Advance & Data)", categoryMatch: ["ຢືມມູນຄ່າໂທ ແລະ ດາຕາເນັດ", "Advance & Data", "Advance", "Data"] },
+            { title: "ສູນ-ໜ່ວຍບໍລິການ ແລະ ຕົວແທນຈໍາໜ່າຍ TPLUS", categoryMatch: ["ສູນ-ໜ່ວຍບໍລິການ TPLUS", "ຕົວແທນຈໍາໜ່າຍ TPLUS", "TPLUS"] },
+            { title: "ສູນ-ໜ່ວຍບໍລິການ ລາວໂທລະຄົມ", categoryMatch: ["ສູນ-ໜ່ວຍບໍລິການ ລາວໂທລະຄົມ", "ລາວໂທລະຄົມ"] }
+        ];
+
+        // Handles the initial load of the Google API client library.
+        function handleClientLoad() {
+            gapi.load('client', initClient);
+        }
+
+        // Initializes the Google API client with the API Key and Sheets discovery document.
+        async function initClient() {
+            try {
+                // Ensure API_KEY is set. If it's the placeholder, display an error.
+                if (API_KEY === 'YOUR_GOOGLE_SHEETS_API_KEY' || !API_KEY) {
+                    displayErrorMessage('ກະລຸນາໃສ່ Google Sheets API Key ທີ່ຖືກຕ້ອງຂອງທ່ານໃນລະຫັດ.');
+                    return;
+                }
+
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+                });
+                console.log('Google API client initialized successfully.');
+                loadSheetData(); // Proceed to load data once client is ready
+            } catch (err) {
+                console.error('Error initializing Google API client:', err);
+                displayErrorMessage('ເກີດຂໍ້ຜິດພາດໃນການເຊື່ອມຕໍ່ກັບ Google API. ກະລຸນາກວດສອບ API Key ຂອງທ່ານ.');
+            }
+        }
+
+        // Fetches data from the specified Google Sheet.
+        async function loadSheetData() {
+            try {
+                const response = await gapi.client.sheets.spreadsheets.values.get({
+                    spreadsheetId: SPREADSHEET_ID,
+                    range: `${SHEET_NAME}!A:Z`, // Fetch all columns from the specified sheet
+                });
+
+                const data = response.result.values;
+                if (!data || data.length === 0) {
+                    displayErrorMessage('ບໍ່ພົບຂໍ້ມູນໃນ Google Sheet ທີ່ລະບຸ.');
+                    return;
+                }
+                renderData(data); // Render the fetched data
+            } catch (err) {
+                console.error('Error fetching data from Google Sheet:', err);
+                // Modified to pass the full error object for better debugging
+                displayErrorMessage('ເກີດຂໍ້ຜິດພາດໃນການໂຫຼດຂໍ້ມູນຈາກ Google Sheet. ກະລຸນາລອງໃໝ່ອີກຄັ້ງ. (ເບິ່ງ Console ສໍາລັບລາຍລະອຽດເພີ່ມເຕີມ)', err);
+            }
+        }
+
+        // Renders the data fetched from Google Sheet into the HTML.
+        function renderData(data) {
+            const contentDiv = document.getElementById('content-display');
+            contentDiv.innerHTML = ''; // Clear loading message
+
+            // Assume the first row contains headers
+            const headers = data[0].map(header => header.trim()); // Trim whitespace from headers
+            const rows = data.slice(1); // Actual data rows
+
+            // Find column indices for 'Category', 'Title', 'Description'
+            // These column names must match exactly what's in your Google Sheet's first row.
+            const categoryColIndex = headers.indexOf('Category');
+            const titleColIndex = headers.indexOf('Title');
+            const descriptionColIndex = headers.indexOf('Description');
+
+            // Basic validation for required columns
+            if (categoryColIndex === -1 || titleColIndex === -1 || descriptionColIndex === -1) {
+                displayErrorMessage('Google Sheet ຕ້ອງມີຄໍລຳ "Category", "Title", ແລະ "Description". ກະລຸນາກວດສອບຊື່ຄໍລຳໃນ Google Sheet ຂອງທ່ານໃຫ້ຖືກຕ້ອງ.');
+                return;
+            }
+
+            sections.forEach(section => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'mb-12 p-6 bg-white rounded-xl shadow-lg border border-blue-100 transition-all duration-300 ease-in-out hover:shadow-xl';
+
+                const sectionTitle = document.createElement('h2');
+                sectionTitle.className = 'text-3xl font-bold text-blue-700 mb-6 pb-3 border-b-4 border-blue-500 flex items-center';
+                sectionTitle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>${section.title}`;
+                sectionDiv.appendChild(sectionTitle);
+
+                const sectionContent = document.createElement('div');
+                // Responsive grid for content items
+                sectionContent.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'; 
+
+                const filteredRows = rows.filter(row => {
+                    const categoryCell = row[categoryColIndex];
+                    // Check if the category cell exists and matches any of the keywords for the section
+                    return categoryCell && section.categoryMatch.some(keyword => 
+                        categoryCell.toLowerCase().includes(keyword.toLowerCase())
+                    );
+                });
+
+                if (filteredRows.length > 0) {
+                    filteredRows.forEach(row => {
+                        const itemTitle = row[titleColIndex] || 'No Title Provided'; // Default if title is missing
+                        const itemDescription = row[descriptionColIndex] || 'No Description Provided'; // Default if description is missing
+
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'bg-gray-50 p-5 rounded-lg shadow-md border border-gray-200 transition-transform transform hover:scale-[1.02] hover:shadow-lg';
+
+                        const titleElement = document.createElement('h3');
+                        titleElement.className = 'text-xl font-semibold text-gray-900 mb-2';
+                        titleElement.textContent = itemTitle;
+
+                        const descriptionElement = document.createElement('p');
+                        descriptionElement.className = 'text-gray-700 text-base leading-relaxed';
+                        descriptionElement.textContent = itemDescription;
+
+                        itemDiv.appendChild(titleElement);
+                        itemDiv.appendChild(descriptionElement);
+                        sectionContent.appendChild(itemDiv);
+                    });
+                } else {
+                    const noData = document.createElement('p');
+                    noData.className = 'col-span-full text-center text-gray-500 italic p-4 bg-gray-100 rounded-lg';
+                    noData.textContent = 'ບໍ່ມີຂໍ້ມູນສຳລັບພາກສ່ວນນີ້ໃນຕອນນີ້.';
+                    sectionContent.appendChild(noData);
+                }
+
+                sectionDiv.appendChild(sectionContent);
+                contentDiv.appendChild(sectionDiv);
+            });
+        }
+
+        // Function to display error messages on the UI.
+        // Now accepts an optional error object for console logging.
+        function displayErrorMessage(message, error = null) {
+            const contentDiv = document.getElementById('content-display');
+            contentDiv.innerHTML = `
+                <div class="text-center p-8 bg-red-100 border border-red-400 text-red-700 rounded-lg shadow-md">
+                    <p class="text-xl font-bold mb-3">ຂໍອະໄພ, ເກີດຂໍ້ຜິດພາດ!</p>
+                    <p>${message}</p>
+                    <p class="mt-4 text-sm">ກະລຸນາກວດສອບການເຊື່ອມຕໍ່ອິນເຕີເນັດ ແລະ ການຕັ້ງຄ່າ Google API Key ຂອງທ່ານ.</p>
+                </div>
+            `;
+            if (error) {
+                console.error("ລາຍລະອຽດຂໍ້ຜິດພາດເພີ່ມເຕີມ:", error);
+            }
+        }
+    </script>
+    <!-- Google API Client Library (should be loaded after custom scripts if using onload/onreadystatechange) -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad()" onreadystatechange="if (this.readyState === 'complete') this.onload()"></script>
+</body>
+</html>
